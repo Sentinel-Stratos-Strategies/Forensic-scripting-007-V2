@@ -51,9 +51,9 @@ MENU: tuple[MenuItem, ...] = (
     ),
     MenuItem(
         "02",
-        "Timeline Reconstruction",
-        "build chronological event map",
-        "python scripts/build_narrative_claim_packet.py --run-dir /path/to/007_go_plan_run",
+        "Timeline + Narrative Packet",
+        "build chronology, claims, handoff",
+        "python sentinel_shell.py --once 02 --run-dir /Volumes/Evidence/007_go_plan_YYYYMMDDTHHMMSSZ",
         ("locate run", "read chronology inputs", "build claim rows", "write narrative handoff"),
     ),
     MenuItem(
@@ -220,6 +220,47 @@ def tool_chest(theme: Theme) -> None:
         print(f"  bash {path.relative_to(PROJECT_ROOT)}")
 
 
+def latest_007_run(base: Path = Path("/Volumes/Evidence")) -> Path | None:
+    if not base.exists():
+        return None
+    candidates = [path for path in base.glob("007_go_plan_*") if path.is_dir()]
+    if not candidates:
+        return None
+    return max(candidates, key=lambda path: path.stat().st_mtime)
+
+
+def build_narrative_packet(theme: Theme, run_dir: str | None = None, out_dir: str | None = None) -> int:
+    script = PROJECT_ROOT / "scripts" / "build_narrative_claim_packet.py"
+    if not script.exists():
+        print(theme.paint("Narrative builder is missing from scripts/.", CORAL))
+        return 1
+
+    resolved_run = Path(run_dir).expanduser() if run_dir else latest_007_run()
+    if resolved_run is None:
+        print(theme.paint("No /Volumes/Evidence/007_go_plan_* run was found.", CORAL))
+        print("  Plug in the Evidence volume or pass --run-dir /path/to/run.")
+        return 1
+    if not resolved_run.exists():
+        print(theme.paint(f"Run directory does not exist: {resolved_run}", CORAL))
+        return 1
+
+    command = [sys.executable, str(script), "--run-dir", str(resolved_run)]
+    if out_dir:
+        command.extend(["--out-dir", str(Path(out_dir).expanduser())])
+
+    print()
+    print(theme.paint("Building Genesis narrative handoff from:", MUTED))
+    print(f"  {resolved_run}")
+    print()
+    result = subprocess.run(command, cwd=PROJECT_ROOT, check=False)
+    if result.returncode != 0:
+        print(theme.paint("Narrative packet build failed.", CORAL))
+        return result.returncode
+    print()
+    print(theme.paint("Narrative packet build completed.", CORAL, BOLD))
+    return 0
+
+
 def normalize_choice(choice: str) -> str:
     value = choice.strip()
     if value.isdigit():
@@ -232,11 +273,20 @@ def find_item(choice: str) -> MenuItem | None:
     return next((item for item in MENU if item.key == normalized), None)
 
 
-def run_once(choice: str, theme: Theme, fast: bool = False) -> int:
+def run_once(
+    choice: str,
+    theme: Theme,
+    fast: bool = False,
+    run_dir: str | None = None,
+    narrative_out_dir: str | None = None,
+) -> int:
     item = find_item(choice)
     if item is None:
         print(theme.paint("Unknown selection. Evidence does not support that option.", CORAL))
         return 2
+    if item.key == "02":
+        run_session(item, theme, fast=fast)
+        return build_narrative_packet(theme, run_dir=run_dir, out_dir=narrative_out_dir)
     if item.key == "09":
         run_session(item, theme, fast=fast)
         print()
@@ -298,6 +348,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--tool-chest", action="store_true", help="print available script helpers")
     parser.add_argument("--check", action="store_true", help="check local launcher environment")
     parser.add_argument("--no-color", action="store_true", help="disable ANSI color output")
+    parser.add_argument("--run-dir", help="007 run directory for the timeline/narrative lane")
+    parser.add_argument("--narrative-out-dir", help="optional output directory for the narrative packet")
     return parser.parse_args()
 
 
@@ -312,7 +364,7 @@ def main() -> int:
     if args.demo:
         return run_once("01", theme, fast=True)
     if args.once:
-        return run_once(args.once, theme, fast=True)
+        return run_once(args.once, theme, fast=True, run_dir=args.run_dir, narrative_out_dir=args.narrative_out_dir)
     return interactive(theme)
 
 

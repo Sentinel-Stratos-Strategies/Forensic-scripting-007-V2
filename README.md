@@ -199,11 +199,18 @@ session progress bar for each selected lane. It does not start privileged or
 long-running capture by itself; use the suggested command shown on screen when
 you are ready to run a specific workflow.
 
+Lane `02` is the Genesis narrative tie-in. It finds the newest
+`/Volumes/Evidence/007_go_plan_*` run and builds the timeline, claim matrix,
+evidence base, reviewer narrative, excluded-claims page, and
+`GENESIS_HANDOFF.json`.
+
 Useful launcher modes:
 
 ```bash
 python sentinel_shell.py --check          # verify local launcher prerequisites
 python sentinel_shell.py --tool-chest     # list reusable helper scripts
+python sentinel_shell.py --once 02        # build narrative packet for the latest Evidence run
+python sentinel_shell.py --once 02 --run-dir /Volumes/Evidence/007_go_plan_YYYYMMDDTHHMMSSZ
 python sentinel_shell.py --once 08        # preview one lane and exit
 python sentinel_shell.py --demo --no-color
 ```
@@ -289,6 +296,16 @@ For a completed or interrupted 007 run:
 python3 scripts/build_narrative_claim_packet.py \
   --run-dir /Volumes/Evidence/007_go_plan_YYYYMMDDTHHMMSSZ
 ```
+
+Or use Sentinel Shell from the activated venv:
+
+```bash
+python sentinel_shell.py --once 02 \
+  --run-dir /Volumes/Evidence/007_go_plan_YYYYMMDDTHHMMSSZ
+```
+
+Inside the interactive TUI, choose lane `02` to build the packet from the latest
+`/Volumes/Evidence/007_go_plan_*` run.
 
 The narrative packet includes:
 
