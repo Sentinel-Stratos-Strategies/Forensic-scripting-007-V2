@@ -48,19 +48,19 @@ VERIFY_FILES=$(find "$CASE_DIR" -name code_verification.tsv -type f)
 RUN_ROWS=$(printf '%s\n' "$VERIFY_FILES" | xargs grep -h 'AgentWork/.*/run.sh' | wc -l | tr -d ' ')
 [ "$RUN_ROWS" -eq 2 ] || { echo "FAIL: expected two distinct run.sh rows, got $RUN_ROWS"; exit 1; }
 
-rg -q 'Applications/Test.app/Contents/MacOS/testbin' "$CASE_DIR" || { echo 'FAIL: nested app executable not verified'; exit 1; }
-rg -q 'Library/LaunchAgents/example.test.plist' "$CASE_DIR" || { echo 'FAIL: launch plist not verified'; exit 1; }
+grep -R -q 'Applications/Test.app/Contents/MacOS/testbin' "$CASE_DIR" || { echo 'FAIL: nested app executable not verified'; exit 1; }
+grep -R -q 'Library/LaunchAgents/example.test.plist' "$CASE_DIR" || { echo 'FAIL: launch plist not verified'; exit 1; }
 if find "$CASE_DIR" -name objects.tsv -type f -exec awk -F '\t' 'FNR>1 && ($3=="" || $4=="" || $5=="" || $6==""){bad=1} END{exit bad}' {} +; then
   :
 else
   echo 'FAIL: stat metadata columns are empty or collapsed'
   exit 1
 fi
-if rg -q 'supersecret-test-value' "$CASE_DIR"; then
+if grep -R -q 'supersecret-test-value' "$CASE_DIR"; then
   echo 'FAIL: secret value was copied into results'
   exit 1
 fi
-rg -q 'API_KEY' "$CASE_DIR" || { echo 'FAIL: redacted sensitive keyword hit missing'; exit 1; }
+grep -R -q 'API_KEY' "$CASE_DIR" || { echo 'FAIL: redacted sensitive keyword hit missing'; exit 1; }
 CONTAINER_REPORT=$(find "$CASE_DIR" -name container_verification.tsv -type f | head -n 1)
 [ -n "$CONTAINER_REPORT" ] || { echo 'FAIL: container verification report missing'; exit 1; }
 awk -F '\t' 'NR==1 && $4=="structure" && $6=="signature" && $8=="trust"{ok=1} END{exit !ok}' "$CONTAINER_REPORT" || {
@@ -75,7 +75,7 @@ if awk -F '\t' '$1=="AgentWork/not-valid.dmg" && $8=="trusted"{found=1} END{exit
   echo 'FAIL: invalid DMG was classified as trusted'
   exit 1
 fi
-if rg -q 'Is a directory' "$CASE_DIR"; then
+if grep -R -q 'Is a directory' "$CASE_DIR"; then
   echo 'FAIL: a directory was passed to a file hashing/signature command'
   exit 1
 fi

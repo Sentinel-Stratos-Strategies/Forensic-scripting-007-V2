@@ -628,7 +628,7 @@ verify_containers() {
           signature="valid"
         else
           codesign_description=$(codesign -dvvv "$path" 2>&1 || true)
-          if printf '%s\n' "$codesign_description" | rg -q 'not signed at all|code object is not signed'; then
+          if printf '%s\n' "$codesign_description" | grep -Eq 'not signed at all|code object is not signed'; then
             signature="unsigned"
           else
             signature="invalid"
