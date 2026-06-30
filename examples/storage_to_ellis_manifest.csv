@@ -1,0 +1,2 @@
+name,suspect_app,baseline_app,process_match,pcap_glob,extra_glob
+Atlas,/Applications/ChatGPT Atlas.app,/Applications/ChatGPT Atlas 2.app,ChatGPT Atlas,/Volumes/Ellis/**/*.pcap*,/Volumes/Storage

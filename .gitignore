@@ -1,0 +1,84 @@
+.DS_Store
+._*
+*.swp
+*.swo
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.mobileconfig
+*token*
+*secret*
+*password*
+
+# Python/runtime caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments and local installs
+.venv/
+venv/
+env/
+site-packages/
+
+# Local evidence, captures, and generated outputs
+Archive/
+archives/
+evidence/
+Evidence/
+outputs/
+output/
+runs/
+run_outputs/
+live_capture/
+analysis/
+reports/private/
+tmp/
+temp/
+*.pcap
+*.pcapng
+*.cap
+*.sqlite
+*.sqlite3
+*.db
+*.db-wal
+*.db-shm
+*.tsv.tmp
+*.log
+*.pid
+
+# Large/private Apple and device artifacts
+*.dmg
+*.img
+*.sparsebundle
+*.ipsw
+*.ipa
+*.app
+*.mobilebackup
+MobileSync/
+Backups/
+
+# Local packaged evidence/report exports
+*.zip
+*.tar
+*.tar.gz
+*.7z
+*.docx
+*.xlsx
+*.pdf
+
+# Local nested repo or imported worktree clutter
+Forensic-scripting-007/
+.codex/
+vendor_imports/
+.worktrees/
+worktrees/

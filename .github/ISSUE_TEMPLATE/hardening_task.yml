@@ -1,0 +1,33 @@
+name: Hardening task
+description: Track a security, portability, review, or correctness hardening item.
+title: "[hardening]: "
+labels:
+  - security-review
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - macOS portability
+        - secret redaction
+        - output safety
+        - path validation
+        - evidence integrity
+        - CI/security scanning
+        - documentation
+    validations:
+      required: true
+  - type: textarea
+    id: task
+    attributes:
+      label: Task
+      description: What needs to be hardened?
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+    validations:
+      required: true

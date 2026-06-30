@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security policy
+    url: https://github.com/Sentinel-Stratos-Strategies/Forensic-scripting-007-V2/security/policy
+    about: Read this before reporting vulnerabilities or sensitive findings.
