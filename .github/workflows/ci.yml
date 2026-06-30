@@ -27,7 +27,7 @@ jobs:
           if [ -f requirements.txt ]; then python -m pip install -r requirements.txt; fi
 
       - name: Python compile
-        run: python -m py_compile scripts/*.py scripts/hydrate/*.py
+        run: python -m py_compile sentinel_shell.py scripts/*.py scripts/hydrate/*.py
 
       - name: Shell syntax
         run: bash -n atlas_submission_capture.sh recursive_macos_volume_verify.sh run_forensic_suite.sh scripts/*.sh tests/*.sh
@@ -37,3 +37,8 @@ jobs:
 
       - name: Recursive verifier fixture
         run: bash tests/test_recursive_macos_volume_verify.sh
+
+      - name: Sentinel Shell smoke test
+        run: |
+          python sentinel_shell.py --check
+          python sentinel_shell.py --demo --no-color

@@ -27,6 +27,7 @@ private reports outside git.
 |-- atlas_submission_capture.sh          # App comparison and reviewer packet capture
 |-- recursive_macos_volume_verify.sh     # Recursive macOS/static evidence verifier
 |-- run_forensic_suite.sh                # Venv-backed suite launcher
+|-- sentinel_shell.py                    # Friendly terminal launcher with session progress
 |-- database/                            # 007 SQLite schemas
 |-- docs/                                # Product-safe documentation
 |-- examples/                            # Safe example manifests
@@ -146,6 +147,19 @@ python --version
 python -m pip --version
 ```
 
+Launch the friendly terminal UI from the activated environment:
+
+```bash
+python sentinel_shell.py
+```
+
+For a quick non-interactive smoke test:
+
+```bash
+python sentinel_shell.py --check
+python sentinel_shell.py --demo --no-color
+```
+
 When finished, deactivate the environment:
 
 ```bash
@@ -157,7 +171,9 @@ deactivate
 Run these checks after cloning or before opening a pull request:
 
 ```bash
-python3 -m py_compile scripts/*.py scripts/hydrate/*.py
+python3 -m py_compile sentinel_shell.py scripts/*.py scripts/hydrate/*.py
+python3 sentinel_shell.py --check
+python3 sentinel_shell.py --demo --no-color
 bash -n atlas_submission_capture.sh recursive_macos_volume_verify.sh run_forensic_suite.sh scripts/*.sh tests/*.sh
 bash tests/test_recursive_macos_volume_verify.sh
 bash tests/test_narrative_claim_packet.sh
@@ -167,6 +183,30 @@ Expected result: the commands exit successfully. The recursive verifier fixture
 prints a temporary output directory and a `PASS` line.
 
 ## Basic Usage
+
+### Launch Sentinel Shell
+
+Sentinel Shell is a no-dependency terminal menu for operators who want a more
+human entry point after cloning the repo and activating the venv.
+
+```bash
+source .venv/bin/activate
+python sentinel_shell.py
+```
+
+The launcher shows the main evidence lanes, suggested next commands, and a
+session progress bar for each selected lane. It does not start privileged or
+long-running capture by itself; use the suggested command shown on screen when
+you are ready to run a specific workflow.
+
+Useful launcher modes:
+
+```bash
+python sentinel_shell.py --check          # verify local launcher prerequisites
+python sentinel_shell.py --tool-chest     # list reusable helper scripts
+python sentinel_shell.py --once 08        # preview one lane and exit
+python sentinel_shell.py --demo --no-color
+```
 
 ### Run The Suite
 
