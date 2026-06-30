@@ -628,7 +628,7 @@ verify_containers() {
           signature="valid"
         else
           codesign_description=$(codesign -dvvv "$path" 2>&1 || true)
-          if printf '%s\n' "$codesign_description" | rg -q 'not signed at all|code object is not signed'; then
+          if printf '%s\n' "$codesign_description" | grep -Eq 'not signed at all|code object is not signed'; then
             signature="unsigned"
           else
             signature="invalid"
@@ -725,7 +725,23 @@ collect_high_signal_paths() {
       -e 'mdmBaseURL|axm-servicediscovery|com\.apple\.remotemanagement|ConfigurationProfiles|RunAtLoad|KeepAlive|ProgramArguments|osascript|curl[[:space:]]|base64|cloudflare|warp|codex-local|unsloth|gemma' \
       "$volume" > "$volume_out/forensic_keyword_hits.txt" 2>> "$volume_out/rg_errors.log" || true
   else
-    printf 'ripgrep unavailable; text search not run\n' > "$volume_out/rg_errors.log"
+    printf 'ripgrep unavailable; using find/grep fallback\n' > "$volume_out/rg_errors.log"
+    find "$volume" -xdev -type f \
+      ! -path '*/.git/objects/*' ! -path '*/node_modules/*' ! -path '*/.venv/*' \
+      ! -path '*/venv/*' ! -path '*/Library/Caches/*' ! -path '*/homebrew/Cellar/*' \
+      ! -name '*.jmod' ! -name '*.jar' ! -name '*.zip' ! -name '*.tar*' ! -name '*.dmg' ! -name '*.pkg' \
+      -print0 2>> "$volume_out/find_errors.log" |
+      xargs -0 grep -I -H -i -n -E -o \
+        'token|secret|api[_-]?key|password|passphrase|private[ _-]?key|BEGIN (RSA |OPENSSH |EC )?PRIVATE KEY' \
+        > "$volume_out/sensitive_keyword_hits_redacted.txt" 2>> "$volume_out/rg_errors.log" || true
+    find "$volume" -xdev -type f \
+      ! -path '*/.git/objects/*' ! -path '*/node_modules/*' ! -path '*/.venv/*' \
+      ! -path '*/venv/*' ! -path '*/Library/Caches/*' ! -path '*/homebrew/Cellar/*' \
+      ! -name '*.jmod' ! -name '*.jar' ! -name '*.zip' ! -name '*.tar*' ! -name '*.dmg' ! -name '*.pkg' \
+      -print0 2>> "$volume_out/find_errors.log" |
+      xargs -0 grep -I -H -i -n -E -o \
+        'mdmBaseURL|axm-servicediscovery|com\.apple\.remotemanagement|ConfigurationProfiles|RunAtLoad|KeepAlive|ProgramArguments|osascript|curl[[:space:]]|base64|cloudflare|warp|codex-local|unsloth|gemma' \
+        > "$volume_out/forensic_keyword_hits.txt" 2>> "$volume_out/rg_errors.log" || true
   fi
 }
 
